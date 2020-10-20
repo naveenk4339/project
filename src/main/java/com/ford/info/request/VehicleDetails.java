@@ -1,7 +1,5 @@
 package com.ford.info.request;
 
-import java.util.List;
-
 public class VehicleDetails {
 	
 	private String make;
@@ -11,10 +9,9 @@ public class VehicleDetails {
 	private String engine;
 	private String driveType;
 	private String color;
-	private String MPG;
+	private String mpg;
 	private VehicleFeature vehicleFeature;
 	private VehiclePrice vehiclePrice;
-	
 	public String getMake() {
 		return make;
 	}
@@ -57,11 +54,11 @@ public class VehicleDetails {
 	public void setColor(String color) {
 		this.color = color;
 	}
-	public String getMPG() {
-		return MPG;
+	public String getMpg() {
+		return mpg;
 	}
-	public void setMPG(String mPG) {
-		MPG = mPG;
+	public void setMpg(String mpg) {
+		this.mpg = mpg;
 	}
 	public VehicleFeature getVehicleFeature() {
 		return vehicleFeature;
@@ -69,17 +66,19 @@ public class VehicleDetails {
 	public void setVehicleFeature(VehicleFeature vehicleFeature) {
 		this.vehicleFeature = vehicleFeature;
 	}
-	public VehiclePrice  getVehiclePrice() {
+	public VehiclePrice getVehiclePrice() {
 		return vehiclePrice;
 	}
-	public void setVehiclePrice(VehiclePrice  vehiclePrice) {
+	public void setVehiclePrice(VehiclePrice vehiclePrice) {
 		this.vehiclePrice = vehiclePrice;
 	}
 	@Override
 	public String toString() {
 		return "VehicleDetails [make=" + make + ", model=" + model + ", modelYear=" + modelYear + ", bodyStyle="
-				+ bodyStyle + ", engine=" + engine + ", driveType=" + driveType + ", color=" + color + ", MPG=" + MPG
+				+ bodyStyle + ", engine=" + engine + ", driveType=" + driveType + ", color=" + color + ", mpg=" + mpg
 				+ ", vehicleFeature=" + vehicleFeature + ", vehiclePrice=" + vehiclePrice + "]";
 	}
+	
+	
 
 }

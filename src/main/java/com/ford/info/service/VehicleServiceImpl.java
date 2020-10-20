@@ -48,7 +48,7 @@ public class VehicleServiceImpl implements VehicleService {
 			vehicleDetails.setEngine(vehicle.getEngine());
 			vehicleDetails.setDriveType(vehicle.getDriveType());
 			vehicleDetails.setColor(vehicle.getColor());
-			vehicleDetails.setMPG(vehicle.getMPG());
+			vehicleDetails.setMpg(vehicle.getMpg());
 
 			VehicleFeature vehicleFeature = new VehicleFeature();
 			String[] exterior = vehicle.getExterior().split(",");
@@ -97,7 +97,7 @@ public class VehicleServiceImpl implements VehicleService {
 			vehicleDetails.setEngine(vehicle.getEngine());
 			vehicleDetails.setDriveType(vehicle.getDriveType());
 			vehicleDetails.setColor(vehicle.getColor());
-			vehicleDetails.setMPG(vehicle.getMPG());
+			vehicleDetails.setMpg(vehicle.getMpg());
 
 			VehicleFeature vehicleFeature = new VehicleFeature();
 			String[] exterior = vehicle.getExterior().split(",");
@@ -145,7 +145,7 @@ public class VehicleServiceImpl implements VehicleService {
 			vehicleDetails.setEngine(vehicle.getEngine());
 			vehicleDetails.setDriveType(vehicle.getDriveType());
 			vehicleDetails.setColor(vehicle.getColor());
-			vehicleDetails.setMPG(vehicle.getMPG());
+			vehicleDetails.setMpg(vehicle.getMpg());
 
 			VehicleFeature vehicleFeature = new VehicleFeature();
 			String[] exterior = vehicle.getExterior().split(",");
@@ -203,7 +203,7 @@ public class VehicleServiceImpl implements VehicleService {
 			vehicle.setEngine(vechicleRequest.getVehicleDetails().getEngine());
 			vehicle.setDriveType(vechicleRequest.getVehicleDetails().getDriveType());
 			vehicle.setColor(vechicleRequest.getVehicleDetails().getColor());
-			vehicle.setMPG(vechicleRequest.getVehicleDetails().getMPG());
+			vehicle.setMpg(vechicleRequest.getVehicleDetails().getMpg());
 
 			List<String> exteriorList = vechicleRequest.getVehicleDetails().getVehicleFeature().getExterior();
 

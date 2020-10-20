@@ -79,7 +79,7 @@ public class LoggingAspect {
 
 		long duration = end - begin;
 
-		logger.info("\n duration " + duration / 1000.0 + " seconds");
+		logger.info("Method Name "+method+" \n duration " + duration / 1000.0 + " seconds");
 
 		return result;
 	}

@@ -4,6 +4,7 @@ import java.util.List;
 
 public class VehicleResponse {
 	
+	private String message;
 	private List<VehicleInfo> vehicles;
 
 	public List<VehicleInfo> getVehicles() {
@@ -17,6 +18,14 @@ public class VehicleResponse {
 	@Override
 	public String toString() {
 		return "Vehicles [VehicleResponse=" + vehicles + "]";
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 	
