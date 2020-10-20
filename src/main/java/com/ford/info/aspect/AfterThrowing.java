@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
-@Order(1)
+@Order(2)
 public class AfterThrowing {
 	public static Logger logger = java.util.logging.Logger.getLogger(LoggingAspect.class.getName());
 
