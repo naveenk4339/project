@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
-@Order(2)
+@Order(3)
 public class LoggingAspect {
 
 	public static Logger logger = java.util.logging.Logger.getLogger(LoggingAspect.class.getName());
@@ -56,62 +56,7 @@ public class LoggingAspect {
 	}
 	
 	
-	@Around("execution(* com.ford.info.controller.*.*(..))")
-	public Object aroundForControllerPackage(ProceedingJoinPoint theProceedingJoinPoint) throws Throwable {
-
-		String method = theProceedingJoinPoint.getSignature().toShortString();
-
-		long begin = System.currentTimeMillis();
-
-		Object result = null;
-
-		try {
-
-			result = theProceedingJoinPoint.proceed();
-
-		} catch (Exception e) {
-			logger.info(e.getMessage());
-
-			throw e;
-		}
-
-		long end = System.currentTimeMillis();
-
-		long duration = end - begin;
-
-		logger.info("Method Name "+method+" \n duration " + duration / 1000.0 + " seconds");
-
-		return result;
-	}
-
-	@Around("execution(* com.ford.info.service.*.*(..))")
-	public Object aroundForServicePackage(ProceedingJoinPoint theProceedingJoinPoint) throws Throwable {
-
-		String method = theProceedingJoinPoint.getSignature().toShortString();
-
-		long begin = System.currentTimeMillis();
-
-		Object result = null;
-
-		try {
-
-			result = theProceedingJoinPoint.proceed();
-
-		} catch (Exception e) {
-			logger.info(e.getMessage());
-
-			throw e;
-		}
-
-		long end = System.currentTimeMillis();
-
-		long duration = end - begin;
-
-		logger.info("\n duration " + duration / 1000.0 + " seconds");
-
-		return result;
-	}
-
+	
 	@After("execution(* com.ford.info.*.*.*(..)))")
 	public void afterFinallyAllMethods(JoinPoint theJoinPoint) {
 
