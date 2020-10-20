@@ -1,9 +1,14 @@
 package com.ford.info;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import javax.xml.crypto.Data;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +18,7 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
 import com.ford.info.controller.VehicleController;
+import com.ford.info.exception.VehicleNotFoundException;
 import com.ford.info.request.VehicleDetails;
 import com.ford.info.request.VehicleFeature;
 import com.ford.info.request.VehiclePrice;
@@ -23,9 +29,9 @@ import com.ford.info.response.VehicleResponse;
 import com.ford.info.service.VehicleService;
 
 
+
 @RunWith(org.mockito.runners.MockitoJUnitRunner.class)
 public class VehicleinfoApplicationTests {
-
 		
 	@Mock
 	private VehicleService vehicleService;
@@ -34,32 +40,17 @@ public class VehicleinfoApplicationTests {
 	private VehicleController vehicleController;
 	
 	
-	@Test
-	public void testSizeRequestVechilesList() {
-		VehicleResponse vehicleResponse = new VehicleResponse();
-		List<VehicleInfo> vehicalInfoList = new ArrayList<VehicleInfo>();
-		VehicleInfo vehicleInfos = new VehicleInfo();
-		VehicleDetails details = new VehicleDetails();
-		details.setMake("Ford");
-		details.setMake("Ford");
-		details.setModel("Escape");
-		details.setModelYear("2019");
-		details.setBodyStyle("Sedan");
-		details.setEngine("4D Sport Utility");
-		details.setDriveType("AWD");
-		details.setColor("Agate Black");
-		details.setMPG("28");
-		
-		vehicleInfos.setVehicleDetails(details);
-		vehicalInfoList.add(vehicleInfos);
-		vehicleResponse.setVehicles(vehicalInfoList);
-		
-		
-		Mockito.when(vehicleController.getVehicleInformation()).thenReturn(vehicleResponse);
-		assertEquals(vehicalInfoList.size(),
-				vehicleService.getVehicalInformation().getVehicles().size());
+	@SuppressWarnings("unchecked")
+	@Test(expected = VehicleNotFoundException.class)
+	public void testForVehicleNotFoundException() {
+	
+		Mockito.when(vehicleController.getVehicleInformation()).thenThrow(VehicleNotFoundException.class);
+		vehicleService.getVehicalInformation();
 	
 	}
+	
+
+	
 	
 	@Test
 	public void testSubmitVehicleData() {
@@ -75,7 +66,7 @@ public class VehicleinfoApplicationTests {
 		vehicleDetails.setEngine("4D Sport Utility");
 		vehicleDetails.setDriveType("AWD");
 		vehicleDetails.setColor("Agate Black");
-		vehicleDetails.setMPG("28");
+		vehicleDetails.setMpg("28");
 		
 		List<String> exteriorList = new ArrayList<>();
 		exteriorList.add("Beltline Molding - Black");
@@ -93,7 +84,7 @@ public class VehicleinfoApplicationTests {
 		vehicleFeature.setInterior(interiorList);
 	
 
-		vehiclePrice.setFinalPrice(20000.00);
+		vehiclePrice.setFinalPrice(200000.00);
 		vehiclePrice.setSavings(2000.00);
 		vehiclePrice.setMSRP(35000.00);
 		
@@ -111,18 +102,14 @@ public class VehicleinfoApplicationTests {
 		
 	}
 	
-	
+	@SuppressWarnings("unchecked")
+	@Test(expected = NullPointerException.class)
+	public void submittingNullValueThrowsNullPoint() {
+		VehicleRequest vehicleRequest = null;
+		Mockito.when(vehicleController.submitVehicleInfo(vehicleRequest)).thenThrow(NullPointerException.class);
+		vehicleService.saveVehicleData(vehicleRequest);
+	}
 	 
-	  
-//	  @Test(expected = VehicleNotFoundException.class)
-//	  @After
-//	  public void vehicleNotFoundExceptionTest() throws VehicleNotFoundException {
-//	     
-//	      vehicleController.getVehicleInformation().setVehicles(null);
-//	      
-//	  }
-
-	
 	
 	
 
