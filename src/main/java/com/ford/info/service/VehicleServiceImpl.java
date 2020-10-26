@@ -88,7 +88,7 @@ public class VehicleServiceImpl implements VehicleService {
 
 			VehicleInfo vehicleInfoResponse = new VehicleInfo();
 			vehicleInfoResponse.setVehicleId(vehicle.getId());
-			System.out.println(vehicle.getMake());
+		
 			VehicleDetails vehicleDetails = new VehicleDetails();
 			vehicleDetails.setMake(vehicle.getMake());
 			vehicleDetails.setModel(vehicle.getModel());
@@ -177,12 +177,12 @@ public class VehicleServiceImpl implements VehicleService {
 		VehicleResponse vehicleResponse = new VehicleResponse();
 		List<VehicleInfo> vehicles = new ArrayList<VehicleInfo>();
 		VehicleResponse vehicle = getVehicalInformation();
-
+				
 		vehicles = vehicle.getVehicles().stream()
 				.filter(data -> data.getVehicleDetails().getVehicleFeature().getExterior().contains(exterior)
 						&& data.getVehicleDetails().getVehicleFeature().getInterior().contains(interior))
 				.collect(Collectors.toList());
-
+		
 		vehicleResponse.setVehicles(vehicles);
 
 		return vehicleResponse;
