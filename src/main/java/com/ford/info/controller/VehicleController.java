@@ -1,8 +1,11 @@
 package com.ford.info.controller;
 
+import javax.annotation.security.RolesAllowed;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +45,7 @@ public class VehicleController {
 	private String featuresRequiedMgs;
 
 	@GetMapping("/getVehicleInformation")
+//	@RolesAllowed( "Admin" )
 	public VehicleResponse getVehicleInformation() {
 
 		VehicleResponse vehicles = new VehicleResponse();
