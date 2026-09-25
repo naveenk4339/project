@@ -1,0 +1,13 @@
+Service and Maintenance
+
+Electric vehicles need less maintenance than gasoline cars: there are no oil changes, spark plugs, or timing belts.
+
+Recommended schedule:
+- Tire rotation: every 7,500 miles
+- Cabin air filter: every 2 years
+- Brake fluid check: every 2 years
+- Air-conditioning desiccant bag: every 6 years
+
+Booking service: use the Northwind mobile app or call 1-800-555-0199. Mobile Service technicians can perform many repairs at the customer's home or workplace at no extra charge within 50 miles of a service center.
+
+Roadside assistance is included for the duration of the Basic Vehicle Limited Warranty and covers towing to the nearest service center, flat-tire help, and lockout assistance.

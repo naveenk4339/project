@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RAG Demo</title>
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+    h1 { margin-bottom: .25rem; } .muted { color: #777; font-size: .9rem; }
+    section { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+    textarea { width: 100%; box-sizing: border-box; font: inherit; padding: .5rem; }
+    button { padding: .45rem 1rem; cursor: pointer; }
+    .answer { white-space: pre-wrap; background: #f6f8fa; padding: 1rem; border-radius: 6px; }
+    .source { font-size: .85rem; border-left: 3px solid #ccc; padding-left: .75rem; margin: .5rem 0; }
+    .error { color: #b00020; } ul { padding-left: 1.2rem; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+async function api(path, opts) {
+  const res = await fetch(path, opts);
+  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || res.statusText);
+  return res.status === 204 ? null : res.json();
+}
+
+function App() {
+  const [docs, setDocs] = useState([]);
+  const [question, setQuestion] = useState("");
+  const [result, setResult] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const refresh = () => api("/documents").then(setDocs).catch(e => setError(e.message));
+  useEffect(() => { refresh(); }, []);
+
+  async function upload(e) {
+    const form = new FormData();
+    for (const f of e.target.files) form.append("files", f);
+    setBusy(true); setError("");
+    try { await api("/documents", { method: "POST", body: form }); await refresh(); }
+    catch (err) { setError(err.message); }
+    finally { setBusy(false); e.target.value = ""; }
+  }
+
+  async function remove(id) {
+    await api(`/documents/${id}`, { method: "DELETE" }).catch(e => setError(e.message));
+    refresh();
+  }
+
+  async function ask(e) {
+    e.preventDefault();
+    if (!question.trim()) return;
+    setBusy(true); setError(""); setResult(null);
+    try {
+      setResult(await api("/ask", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question }),
+      }));
+    } catch (err) { setError(err.message); }
+    finally { setBusy(false); }
+  }
+
+  return (
+    <div>
+      <h1>Ask your documents</h1>
+      <div className="muted">FastAPI + PostgreSQL/pgvector retrieval-augmented generation</div>
+
+      <section>
+        <h3>Documents ({docs.length})</h3>
+        <input type="file" multiple accept=".pdf,.txt,.md" onChange={upload} disabled={busy} />
+        <ul>
+          {docs.map(d => (
+            <li key={d.id}>{d.filename} <span className="muted">({d.chunks} chunks)</span>{" "}
+              <button onClick={() => remove(d.id)}>remove</button></li>
+          ))}
+        </ul>
+      </section>
+
+      <section>
+        <form onSubmit={ask}>
+          <textarea rows="3" value={question} placeholder="Ask a question about your documents…"
+            onChange={e => setQuestion(e.target.value)} />
+          <p><button disabled={busy}>{busy ? "Working…" : "Ask"}</button></p>
+        </form>
+        {error && <p className="error">{error}</p>}
+        {result && (
+          <div>
+            <div className="answer">{result.answer}</div>
+            {result.model && <p className="muted">Answered by {result.model}</p>}
+            <h4>Sources</h4>
+            {result.sources.map(s => (
+              <div className="source" key={s.ref}>
+                <strong>[{s.ref}] {s.document}</strong> · chunk {s.chunk_index} · score {s.score.toFixed(3)}
+                <div>{s.content.slice(0, 300)}{s.content.length > 300 ? "…" : ""}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

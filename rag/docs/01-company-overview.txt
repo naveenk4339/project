@@ -1,0 +1,7 @@
+Northwind Mobility - Company Overview
+
+Northwind Mobility is a fictional electric-vehicle company founded in 2018 and headquartered in Austin, Texas. The company designs and sells three vehicles: the Aurora compact sedan, the Summit mid-size SUV, and the Ridge pickup truck.
+
+Northwind employs roughly 4,200 people across engineering, manufacturing, sales and support. Final assembly takes place at the Bastrop plant, which opened in 2021 and has an annual capacity of 150,000 vehicles.
+
+The company's mission is "clean, dependable transportation for everyday drivers." Its CEO is Maria Delgado, who previously led battery engineering at the company.

@@ -1,0 +1,9 @@
+Charging Guide
+
+Level 1 (120V household outlet): adds about 3-4 miles of range per hour. Suitable only for light daily driving.
+
+Level 2 (240V home or public charger): the recommended home setup. With the included 11.5 kW onboard charger, a Level 2 station adds about 35-40 miles of range per hour. Northwind's Home Wall Connector costs $549 plus installation.
+
+DC fast charging: all models accept up to 250 kW. Under ideal conditions the Aurora charges from 10% to 80% in about 22 minutes; the Summit in about 26 minutes; and the Ridge in about 31 minutes.
+
+Battery care tips: set the daily charge limit to 80% and charge to 100% only before long trips. Precondition the battery using the navigation system before arriving at a fast charger in cold weather.
