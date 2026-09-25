@@ -1,0 +1,50 @@
+{
+  "info": {
+    "name": "RAG API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{ "key": "baseUrl", "value": "http://localhost:8000" }],
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+    },
+    {
+      "name": "Upload documents",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/documents",
+        "body": {
+          "mode": "formdata",
+          "formdata": [{ "key": "files", "type": "file", "src": [] }]
+        }
+      }
+    },
+    {
+      "name": "List documents",
+      "request": { "method": "GET", "url": "{{baseUrl}}/documents" }
+    },
+    {
+      "name": "Search (retrieval only)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/search",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"question\": \"How long is the battery warranty?\",\n  \"top_k\": 3\n}" }
+      }
+    },
+    {
+      "name": "Ask",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/ask",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"question\": \"How long is the battery warranty and what capacity is guaranteed?\"\n}" }
+      }
+    },
+    {
+      "name": "Delete document",
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/documents/1" }
+    }
+  ]
+}

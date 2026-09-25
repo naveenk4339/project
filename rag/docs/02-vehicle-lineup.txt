@@ -1,0 +1,23 @@
+Northwind Vehicle Lineup and Specifications
+
+Aurora (compact sedan)
+- Battery: 68 kWh
+- EPA-estimated range: 310 miles
+- 0-60 mph: 6.1 seconds
+- Starting price: $36,900
+
+Summit (mid-size SUV)
+- Battery: 92 kWh
+- EPA-estimated range: 335 miles
+- Seating: up to 7 passengers with the optional third row
+- Towing capacity: 3,500 lbs
+- Starting price: $48,500
+
+Ridge (pickup truck)
+- Battery: 131 kWh (Extended Range pack)
+- EPA-estimated range: 320 miles
+- Towing capacity: 10,000 lbs
+- Payload: 1,800 lbs
+- Starting price: $61,000
+
+All models support DC fast charging at up to 250 kW and ship with over-the-air software updates.

@@ -1,0 +1,11 @@
+Northwind Warranty Policy
+
+Basic Vehicle Limited Warranty: 4 years or 50,000 miles, whichever comes first. Covers defects in materials and workmanship for all parts supplied by Northwind, except items listed under exclusions.
+
+Battery and Drive Unit Warranty: 8 years or 120,000 miles, whichever comes first. The battery is guaranteed to retain at least 70% of its original capacity during the warranty period.
+
+Corrosion (perforation) Warranty: 12 years, unlimited miles.
+
+Exclusions: tires, wiper blades, brake pads, and damage from accidents, misuse, flooding, or unauthorized modifications. Cosmetic wear is not covered.
+
+Warranty coverage transfers automatically to subsequent owners at no cost.
