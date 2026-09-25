@@ -20,6 +20,8 @@ upload ─► extract text (pypdf) ─► chunk (~1000 chars, 150 overlap) ─�
 question ─► embed ─► ORDER BY embedding <=> query LIMIT k ─► prompt LLM with numbered passages ─► answer + sources
 ```
 
+Database access goes through a `psycopg_pool` connection pool (size `DB_POOL_SIZE`, default 10), opened at startup and closed on shutdown. The web page streams answers as they're generated via `POST /ask/stream`.
+
 ## Run it
 
 ### Option A: Docker Compose (Postgres + API)
@@ -69,6 +71,7 @@ With Claude, the request opts into server-side refusal fallbacks (`fallbacks: "d
 | DELETE | `/documents/{id}` | – | Remove a document and its chunks |
 | POST   | `/search` | `{"question": "...", "top_k": 5}` | Retrieval only, no LLM |
 | POST   | `/ask` | `{"question": "...", "top_k": 5}` | Retrieve + generate an answer with cited sources |
+| POST   | `/ask/stream` | same as `/ask` | Same, streamed as Server-Sent Events (see below) |
 
 ```bash
 curl -F files=@docs/03-warranty-policy.txt http://localhost:8000/documents
@@ -84,6 +87,20 @@ Example `/ask` response:
   "model": "claude-opus-5",
   "sources": [{"ref": 1, "document": "03-warranty-policy.txt", "chunk_index": 0, "content": "...", "score": 0.61}]
 }
+```
+
+`/ask/stream` returns `text/event-stream` with these events, in order:
+
+| Event | Data |
+|-------|------|
+| `sources` | `{"sources": [...]}` (same shape as `/ask`) |
+| `delta` | `{"text": "..."}`, repeated; concatenate them for the answer |
+| `done` | `{"model": "claude-opus-5"}` |
+| `error` | `{"detail": "..."}`, sent instead of `done` if generation fails or is refused; discard any partial text |
+
+```bash
+curl -N -X POST http://localhost:8000/ask/stream -H 'Content-Type: application/json' \
+     -d '{"question": "How long is the battery warranty?"}'
 ```
 
 Postman: import `postman/RAG.postman_collection.json`; `baseUrl` defaults to `http://localhost:8000`.

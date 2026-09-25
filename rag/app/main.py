@@ -1,10 +1,11 @@
+import json
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from .config import get_settings
@@ -26,11 +27,14 @@ async def lifespan(app: FastAPI):
     global rag
     settings = get_settings()
     store = Store(settings)
-    store.init_schema()
+    store.open()
     rag = RagService(settings, store, get_embedder(settings), get_llm(settings))
     log.info("RAG ready: llm=%s/%s embeddings=%s dim=%d",
              settings.llm_provider, rag.llm.model, settings.embedding_provider, settings.embedding_dim)
-    yield
+    try:
+        yield
+    finally:
+        store.close()
 
 
 app = FastAPI(title="RAG API", version="1.0.0", lifespan=lifespan)
@@ -99,3 +103,24 @@ def ask(req: AskRequest):
     except Exception as e:  # provider auth/network/rate-limit errors
         log.exception("LLM/embedding call failed")
         raise HTTPException(502, f"Upstream model provider error: {type(e).__name__}: {e}") from e
+
+
+@app.post("/ask/stream")
+def ask_stream(req: AskRequest):
+    """Server-Sent Events: `sources`, then `delta` events with answer text, then `done` (or `error`)."""
+
+    def events():
+        try:
+            for event, data in rag.ask_stream(req.question, req.top_k):
+                yield _sse(event, data)
+        except LLMError as e:
+            yield _sse("error", {"detail": str(e)})
+        except Exception as e:  # provider auth/network/rate-limit errors
+            log.exception("Streaming answer failed")
+            yield _sse("error", {"detail": f"Upstream model provider error: {type(e).__name__}: {e}"})
+
+    return StreamingResponse(events(), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
+
+
+def _sse(event: str, data: dict) -> str:
+    return f"event: {event}\ndata: {json.dumps(data, default=str)}\n\n"

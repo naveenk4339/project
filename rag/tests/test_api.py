@@ -1,5 +1,6 @@
 """End-to-end test against a real Postgres+pgvector (set TEST_DATABASE_URL), with offline
 hash embeddings and a stub LLM so no API keys are needed."""
+import json
 import os
 from pathlib import Path
 
@@ -20,6 +21,27 @@ class StubLLM:
     def generate(self, system, prompt):
         self.prompts.append(prompt)
         return "stub answer [1]"
+
+    def stream(self, system, prompt):
+        self.prompts.append(prompt)
+        yield "stub "
+        yield "answer [1]"
+
+
+class RefusingLLM(StubLLM):
+    def stream(self, system, prompt):
+        from app.llm import LLMError
+
+        yield "partial "
+        raise LLMError("The model declined to answer this request.")
+
+
+def parse_sse(body: str) -> list[tuple[str, dict]]:
+    events = []
+    for block in body.strip().split("\n\n"):
+        lines = dict(line.split(": ", 1) for line in block.splitlines())
+        events.append((lines["event"], json.loads(lines["data"])))
+    return events
 
 
 @pytest.fixture
@@ -77,3 +99,43 @@ def test_reupload_replaces_and_delete(client):
 def test_rejects_unsupported_type(client):
     r = client.post("/documents", files=[("files", ("x.docx", b"data", "application/octet-stream"))])
     assert r.status_code == 400
+
+
+def test_ask_stream(client):
+    doc = DOCS / "03-warranty-policy.txt"
+    client.post("/documents", files=[("files", (doc.name, doc.read_bytes(), "text/plain"))])
+
+    r = client.post("/ask/stream", json={"question": "How long is the battery warranty?"})
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("text/event-stream")
+    events = parse_sse(r.text)
+    assert [e for e, _ in events] == ["sources", "delta", "delta", "done"]
+    assert events[0][1]["sources"][0]["document"] == "03-warranty-policy.txt"
+    assert "".join(d["text"] for e, d in events if e == "delta") == "stub answer [1]"
+    assert events[-1][1] == {"model": "stub"}
+
+
+def test_ask_stream_with_no_documents(client):
+    events = parse_sse(client.post("/ask/stream", json={"question": "anything"}).text)
+    assert [e for e, _ in events] == ["sources", "delta", "done"]
+    assert events[0][1]["sources"] == []
+
+
+def test_ask_stream_refusal_emits_error(client, monkeypatch):
+    from app import main
+
+    doc = DOCS / "03-warranty-policy.txt"
+    client.post("/documents", files=[("files", (doc.name, doc.read_bytes(), "text/plain"))])
+    monkeypatch.setattr(main.rag, "llm", RefusingLLM())
+    events = parse_sse(client.post("/ask/stream", json={"question": "warranty?"}).text)
+    assert events[-1] == ("error", {"detail": "The model declined to answer this request."})
+
+
+def test_requests_reuse_pooled_connections(client):
+    from app import main
+
+    for _ in range(20):
+        assert client.get("/documents").status_code == 200
+    stats = main.rag.store.pool.get_stats()
+    assert stats["pool_size"] <= main.rag.store.pool_size
+    assert stats["connections_num"] <= stats["pool_size"]
