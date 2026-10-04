@@ -1,0 +1,22 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: cart-service
+  datasource:
+    url: ${POS_DB_URL:jdbc:postgresql://localhost:5432/pos}
+    username: ${POS_DB_USER:pos}
+    password: ${POS_DB_PASSWORD:pos}
+  jpa:
+    hibernate.ddl-auto: validate
+    open-in-view: false
+  flyway:
+    # cart, checkout and payment share the Transaction DB; each owns its tables and its own history table
+    locations: classpath:db/migration/cart
+    table: flyway_history_cart
+    baseline-on-migrate: true
+    baseline-version: 0
+services:
+  pricing-url: ${PRICING_URL:http://localhost:8082}
+management:
+  endpoints.web.exposure.include: health,info

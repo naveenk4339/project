@@ -1,0 +1,19 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: api-gateway
+gateway:
+  api-key: ${POS_GATEWAY_API_KEY:}
+services:
+  cart: ${CART_URL:http://localhost:8081}
+  pricing: ${PRICING_URL:http://localhost:8082}
+  checkout: ${CHECKOUT_URL:http://localhost:8083}
+  inventory: ${INVENTORY_URL:http://localhost:8086}
+  receipt: ${RECEIPT_URL:http://localhost:8087}
+  loyalty: ${LOYALTY_URL:http://localhost:8088}
+  analytics: ${ANALYTICS_URL:http://localhost:8089}
+  ai-platform: ${AI_PLATFORM_URL:http://localhost:8090}
+  assistant: ${ASSISTANT_URL:http://localhost:8091}
+management:
+  endpoints.web.exposure.include: health,info,gateway

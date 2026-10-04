@@ -1,0 +1,23 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: checkout-service
+  datasource:
+    url: ${POS_DB_URL:jdbc:postgresql://localhost:5432/pos}
+    username: ${POS_DB_USER:pos}
+    password: ${POS_DB_PASSWORD:pos}
+  jpa:
+    hibernate.ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration/checkout
+    table: flyway_history_checkout
+    baseline-on-migrate: true
+    baseline-version: 0
+services:
+  cart-url: ${CART_URL:http://localhost:8081}
+  pricing-url: ${PRICING_URL:http://localhost:8082}
+  payment-url: ${PAYMENT_URL:http://localhost:8084}
+management:
+  endpoints.web.exposure.include: health,info

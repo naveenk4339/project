@@ -1,0 +1,28 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: pricing-service
+management:
+  endpoints.web.exposure.include: health,info
+
+pricing:
+  default-tax-rate: 0.06
+  tax-rates:
+    store-001: 0.06    # Michigan
+    store-002: 0.0725  # California
+  products:
+    - { sku: "COF-001", name: "Drip Coffee 16oz",        category: "beverage", price-cents: 299,  taxable: false }
+    - { sku: "COF-002", name: "Cold Brew 16oz",          category: "beverage", price-cents: 449,  taxable: false }
+    - { sku: "BAK-001", name: "Blueberry Muffin",        category: "bakery",   price-cents: 325,  taxable: false }
+    - { sku: "BAK-002", name: "Butter Croissant",        category: "bakery",   price-cents: 375,  taxable: false }
+    - { sku: "SNK-001", name: "Sea Salt Chips",          category: "snacks",   price-cents: 199,  taxable: true }
+    - { sku: "SNK-002", name: "Dark Chocolate Bar",      category: "snacks",   price-cents: 249,  taxable: true }
+    - { sku: "ELE-001", name: "USB-C Charging Cable",    category: "electronics", price-cents: 1499, taxable: true }
+    - { sku: "ELE-002", name: "Wireless Earbuds",        category: "electronics", price-cents: 4999, taxable: true }
+    - { sku: "MER-001", name: "Insulated Tumbler",       category: "merch",    price-cents: 2499, taxable: true }
+    - { sku: "MER-002", name: "Canvas Tote Bag",         category: "merch",    price-cents: 1299, taxable: true }
+  promotions:
+    - { id: "BAKERY-20",  description: "20% off bakery",                 type: PERCENT_OFF_CATEGORY, category: "bakery", percent: 20 }
+    - { id: "CHIPS-B2G1", description: "Buy 2 chips, get 1 free",       type: BUY_X_GET_Y, sku: "SNK-001", buy-quantity: 2, get-quantity: 1 }
+    - { id: "SPEND50-5",  description: "$5 off orders of $50 or more",   type: ORDER_THRESHOLD, threshold-cents: 5000, amount-off-cents: 500 }

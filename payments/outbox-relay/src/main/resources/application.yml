@@ -1,0 +1,27 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: outbox-relay
+  datasource:
+    url: ${POS_DB_URL:jdbc:postgresql://localhost:5432/pos}
+    username: ${POS_DB_USER:pos}
+    password: ${POS_DB_PASSWORD:pos}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    producer:
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        enable.idempotence: true
+        delivery.timeout.ms: 10000
+        request.timeout.ms: 5000
+outbox:
+  batch-size: 100
+  poll-interval: 500ms
+  lock-clause: "FOR UPDATE SKIP LOCKED"
+  send-timeout: 10s
+  retention: 7d
+management:
+  endpoints.web.exposure.include: health,info

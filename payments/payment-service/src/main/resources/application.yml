@@ -1,0 +1,24 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: payment-service
+  datasource:
+    url: ${POS_DB_URL:jdbc:postgresql://localhost:5432/pos}
+    username: ${POS_DB_USER:pos}
+    password: ${POS_DB_PASSWORD:pos}
+  jpa:
+    hibernate.ddl-auto: validate
+    open-in-view: false
+  flyway:
+    locations: classpath:db/migration/payment
+    table: flyway_history_payment
+    baseline-on-migrate: true
+    baseline-version: 0
+fraud:
+  url: ${AI_PLATFORM_URL:http://localhost:8090}
+  timeout: 300ms
+  decline-threshold: 0.85
+  fail-open-max-cents: 10000
+management:
+  endpoints.web.exposure.include: health,info

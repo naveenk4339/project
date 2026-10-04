@@ -1,0 +1,9 @@
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration
+assistant:
+  vector-store: simple
+  embeddings: hashing
+  pos-api-url: http://localhost:65535

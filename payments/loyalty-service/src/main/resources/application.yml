@@ -1,0 +1,20 @@
+server:
+  port: 8088
+spring:
+  application:
+    name: loyalty-service
+  datasource:
+    url: ${LOYALTY_DB_URL:jdbc:postgresql://localhost:5432/loyalty}
+    username: ${POS_DB_USER:pos}
+    password: ${POS_DB_PASSWORD:pos}
+  jpa:
+    open-in-view: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    consumer:
+      group-id: loyalty-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+management:
+  endpoints.web.exposure.include: health,info
