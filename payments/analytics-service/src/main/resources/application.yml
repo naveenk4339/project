@@ -1,0 +1,14 @@
+server:
+  port: 8089
+spring:
+  application:
+    name: analytics-service
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    consumer:
+      group-id: analytics-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+management:
+  endpoints.web.exposure.include: health,info

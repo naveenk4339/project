@@ -1,0 +1,116 @@
+# Full stack: infrastructure + all services. `docker compose up --build`, then open http://localhost:8080
+# Set ANTHROPIC_API_KEY in your shell (or .env) to enable the LLM in the GenAI assistant.
+
+x-service: &service
+  build:
+    context: .
+  restart: unless-stopped
+  environment: &env
+    POS_DB_URL: jdbc:postgresql://postgres:5432/pos
+    INVENTORY_DB_URL: jdbc:postgresql://postgres:5432/inventory
+    LOYALTY_DB_URL: jdbc:postgresql://postgres:5432/loyalty
+    ASSISTANT_DB_URL: jdbc:postgresql://postgres:5432/assistant
+    POS_DB_USER: pos
+    POS_DB_PASSWORD: pos
+    KAFKA_BOOTSTRAP: kafka:9092
+    CART_URL: http://cart-service:8081
+    PRICING_URL: http://pricing-service:8082
+    CHECKOUT_URL: http://checkout-service:8083
+    PAYMENT_URL: http://payment-service:8084
+    INVENTORY_URL: http://inventory-service:8086
+    RECEIPT_URL: http://receipt-service:8087
+    LOYALTY_URL: http://loyalty-service:8088
+    ANALYTICS_URL: http://analytics-service:8089
+    AI_PLATFORM_URL: http://ai-platform:8090
+    ASSISTANT_URL: http://genai-assistant:8091
+    POS_API_URL: http://api-gateway:8080
+  depends_on: &deps
+    postgres: { condition: service_healthy }
+    kafka: { condition: service_healthy }
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: pos
+      POSTGRES_PASSWORD: pos
+    ports: ["5432:5432"]
+    volumes:
+      - ./infra/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pos -d pos"]
+      interval: 5s
+      retries: 20
+
+  kafka:
+    image: apache/kafka:3.9.1
+    ports: ["9094:9094"]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 5s
+      retries: 30
+
+  api-gateway:
+    <<: *service
+    build: { context: ., args: { MODULE: api-gateway } }
+    ports: ["8080:8080"]
+    depends_on: {}
+  cart-service:
+    <<: *service
+    build: { context: ., args: { MODULE: cart-service } }
+  pricing-service:
+    <<: *service
+    build: { context: ., args: { MODULE: pricing-service } }
+    depends_on: {}
+  checkout-service:
+    <<: *service
+    build: { context: ., args: { MODULE: checkout-service } }
+  payment-service:
+    <<: *service
+    build: { context: ., args: { MODULE: payment-service } }
+  outbox-relay:
+    <<: *service
+    build: { context: ., args: { MODULE: outbox-relay } }
+    depends_on:
+      <<: *deps
+      checkout-service: { condition: service_started }  # owns the outbox_event table migration
+  inventory-service:
+    <<: *service
+    build: { context: ., args: { MODULE: inventory-service } }
+  receipt-service:
+    <<: *service
+    build: { context: ., args: { MODULE: receipt-service } }
+  loyalty-service:
+    <<: *service
+    build: { context: ., args: { MODULE: loyalty-service } }
+  analytics-service:
+    <<: *service
+    build: { context: ., args: { MODULE: analytics-service } }
+  ai-platform:
+    <<: *service
+    build: { context: ., args: { MODULE: ai-platform } }
+  genai-assistant:
+    <<: *service
+    build: { context: ., args: { MODULE: genai-assistant } }
+    environment:
+      <<: *env
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - djl-cache:/home/app/.djl.ai   # embedding model download cache
+
+volumes:
+  pgdata:
+  djl-cache:
