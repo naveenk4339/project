@@ -1,10 +1,10 @@
 import re
-from contextlib import contextmanager
 from dataclasses import dataclass
 
 import psycopg
 from pgvector import Vector
 from pgvector.psycopg import register_vector
+from psycopg_pool import ConnectionPool
 
 from .config import Settings
 
@@ -21,12 +21,25 @@ class Store:
     def __init__(self, settings: Settings):
         self.dsn = settings.database_url
         self.dim = settings.embedding_dim
+        self.pool_size = settings.db_pool_size
+        self.pool: ConnectionPool | None = None
 
-    @contextmanager
+    def open(self) -> None:
+        """Create the schema, then open the connection pool (the vector type must exist first)."""
+        self.init_schema()
+        self.pool = ConnectionPool(
+            self.dsn, min_size=1, max_size=self.pool_size, configure=_configure, open=True
+        )
+
+    def close(self) -> None:
+        if self.pool is not None:
+            self.pool.close()
+            self.pool = None
+
     def conn(self):
-        with psycopg.connect(self.dsn) as conn:
-            register_vector(conn)
-            yield conn
+        if self.pool is None:
+            raise RuntimeError("Store is not open; call open() first")
+        return self.pool.connection()
 
     def init_schema(self) -> None:
         with psycopg.connect(self.dsn) as conn:
@@ -105,3 +118,8 @@ class Store:
     def delete_document(self, doc_id: int) -> bool:
         with self.conn() as conn:
             return conn.execute("DELETE FROM documents WHERE id = %s", (doc_id,)).rowcount > 0
+
+
+def _configure(conn: psycopg.Connection) -> None:
+    register_vector(conn)
+    conn.commit()  # register_vector queries the type OID; don't hand the pool a connection mid-transaction

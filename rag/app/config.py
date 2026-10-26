@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str = "postgresql://rag:rag@localhost:5432/rag"
+    db_pool_size: int = 10
 
     llm_provider: str = "claude"  # claude | openai | gemini
     llm_model: str = ""

@@ -12,14 +12,17 @@ from .rag import RagService
 def main(folder: str) -> None:
     settings = get_settings()
     store = Store(settings)
-    store.init_schema()
+    store.open()
     service = RagService(settings, store, get_embedder(settings), llm=None)  # ingest doesn't need the LLM
     files = sorted(p for p in Path(folder).iterdir() if p.suffix.lower() in SUPPORTED)
     if not files:
         sys.exit(f"No {sorted(SUPPORTED)} files in {folder}")
-    for path in files:
-        result = service.ingest(path.name, path.read_bytes())
-        print(f"{result['filename']}: {result['chunks']} chunks")
+    try:
+        for path in files:
+            result = service.ingest(path.name, path.read_bytes())
+            print(f"{result['filename']}: {result['chunks']} chunks")
+    finally:
+        store.close()
 
 
 if __name__ == "__main__":
